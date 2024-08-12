@@ -46,7 +46,7 @@ pipeline {
 
         stage('Configure kubectl') {
             steps {
-                sh 'aws eks --region your-region update-kubeconfig --name EdurekaProject'
+                sh 'aws eks --region us-east-1 update-kubeconfig --name EdurekaProject'
             }
         }
 
