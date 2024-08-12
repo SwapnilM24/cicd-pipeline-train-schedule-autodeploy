@@ -30,7 +30,7 @@ pipeline {
         
         stage('Check kubectl Installation') {
             steps {
-                // Check if kubectl is properly installed
+                // Check if kubectl is properly install
                 sh 'kubectl version --client'
             }
         }
