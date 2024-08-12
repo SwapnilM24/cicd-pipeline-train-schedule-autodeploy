@@ -35,14 +35,15 @@ pipeline {
             }
         }
         
-       stage('Deploy to EKS') {
+stage('Deploy to EKS') {
     steps {
-        sh 'kubectl config current-context'  // Print current context
-        sh 'kubectl config view'              // Print current kubeconfig
-        sh 'cat deployment.yaml'               // Show contents of deployment.yaml
+        sh 'kubectl config use-context arn:aws:eks:us-east-1:339713174488:cluster/EdurekaProject'  // Ensure you set the context
+        sh 'kubectl config arn:aws:eks:us-east-1:339713174488:cluster/EdurekaProject'  // Verify the current context
         sh 'kubectl apply -f deployment.yaml --validate=false'
     }
 }
+
+
 
         
     
