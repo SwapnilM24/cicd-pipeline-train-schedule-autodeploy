@@ -30,7 +30,7 @@ pipeline {
 
         stage('Set AWS Credentials') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'your-aws-credentials-id']]) {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AKIAU6GD3VPMHMDVCVD6']]) {
                     // AWS commands can be added here if needed
                 }
             }
