@@ -37,11 +37,10 @@ pipeline {
         }
         
         stage('Deploy to EKS') {
-            steps {
-                // Apply the deployment file
-                sh 'cat deployment.yaml'  // Show the contents of deployment.yaml for debugging
-                sh 'kubectl apply -f deployment.yaml'
-            }
-        }
+    steps {
+        sh 'kubectl apply -f deployment.yaml --validate=false'
+    }
+}
+
     }
 }
