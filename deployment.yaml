@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: train-schedule-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: train-schedule
+  template:
+    metadata:
+      labels:
+        app: train-schedule
+    spec:
+      containers:
+      - name: train-schedule
+        image: swapi123/train-schedule:latest
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: train-schedule-service
+spec:
+  selector:
+    app: train-schedule
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
