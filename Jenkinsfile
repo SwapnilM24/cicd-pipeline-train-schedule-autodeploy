@@ -49,7 +49,6 @@ pipeline {
                 sh 'aws eks --region us-east-1 update-kubeconfig --name EdurekaProject'
             }
         }
-
         stage('Verify kubectl Access') {
             steps {
                 sh 'kubectl get nodes'
