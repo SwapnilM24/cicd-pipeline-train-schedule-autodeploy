@@ -1,51 +1,80 @@
 pipeline {
     agent any
-
     environment {
-        DOCKER_HUB_USER = 'swapi123'
-        DOCKER_IMAGE_NAME = "${DOCKER_HUB_USER}/train-schedule:latest"
+        // Replace "bhavukm" with your Docker Hub username
+        DOCKER_IMAGE_NAME = "swapi123/train-schedule"
     }
-
     stages {
-        stage('Checkout') {
+        stage('Build') {
             steps {
-                git 'https://github.com/SwapnilM24/cicd-pipeline-train-schedule-autodeploy.git'
+                echo 'Running build automation'
+                sh './gradlew build --no-daemon'
+                archiveArtifacts artifacts: 'dist/trainSchedule.zip'
             }
         }
-
         stage('Build Docker Image') {
-            steps {
-                sh "docker build -t ${DOCKER_IMAGE_NAME} ."
+            when {
+                branch 'master'
             }
-        }
-
-        stage('Push to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-password', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-                    sh "docker push ${DOCKER_IMAGE_NAME}"
+                script {
+                    app = docker.build(DOCKER_IMAGE_NAME)
+                    app.inside {
+                        sh 'echo Hello, World!'
+                    }
                 }
             }
         }
-
-        stage('Set AWS Credentials') {
+        stage('Push Docker Image') {
+            when {
+                branch 'master'
+            }
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AKIAU6GD3VPMHMDVCVD6']]) {
-                    // AWS commands can be added here if needed
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
+                        app.push("${env.BUILD_NUMBER}")
+                        app.push("latest")
+                    }
                 }
             }
         }
-
-        stage('Configure kubectl') {
+        stage('CanaryDeploy') {
+            when {
+                branch 'master'
+            }
+            environment { 
+                CANARY_REPLICAS = 1
+            }
             steps {
-                sh 'aws eks --region your-region update-kubeconfig --name your-cluster-name'
+                kubernetesDeploy(
+                    kubeconfigId: 'kubeconfig',
+                    configs: 'train-schedule-kube-canary.yml',
+                    enableConfigSubstitution: true
+                )
             }
         }
-
-        stage('Deploy to EKS') {
+        stage('DeployToProduction') {
+            when {
+                branch 'master'
+            }
+            environment { 
+                CANARY_REPLICAS = 0
+            }
             steps {
-                sh 'kubectl apply -f deployment.yaml --validate=false'
+                input 'Deploy to Production?'
+                milestone(1)
+                kubernetesDeploy(
+                    kubeconfigId: 'kubeconfig',
+                    configs: 'train-schedule-kube-canary.yml',
+                    enableConfigSubstitution: true
+                )
+                kubernetesDeploy(
+                    kubeconfigId: 'kubeconfig',
+                    configs: 'train-schedule-kube.yml',
+                    enableConfigSubstitution: true
+                )
             }
         }
     }
 }
+
