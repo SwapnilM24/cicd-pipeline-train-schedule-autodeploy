@@ -35,13 +35,16 @@ pipeline {
             }
         }
         
-        stage('Deploy to EKS') {
-            steps {
-                // Apply the deployment file
-                sh 'kubectl apply -f deployment.yaml --validate=false'
-                sh 'cat deployment.yaml'  // Show the contents of deployment.yaml for debugging
-                sh 'kubectl apply -f deployment.yaml'
-            }
-        }
+       stage('Deploy to EKS') {
+    steps {
+        sh 'kubectl config current-context'  // Print current context
+        sh 'kubectl config view'              // Print current kubeconfig
+        sh 'cat deployment.yaml'               // Show contents of deployment.yaml
+        sh 'kubectl apply -f deployment.yaml --validate=false'
+    }
+}
+
+        
+    
     }
 }
