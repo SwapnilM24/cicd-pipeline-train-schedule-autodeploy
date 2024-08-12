@@ -37,7 +37,7 @@ pipeline {
         
         stage('Set AWS Credentials') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'your-aws-credentials-id']]) {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'AKIAU6GD3VPMHMDVCVD6']]) {
                     sh 'aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID'
                     sh 'aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY'
                 }
@@ -46,7 +46,7 @@ pipeline {
 
         stage('Configure kubectl') {
             steps {
-                sh 'aws eks --region your-region update-kubeconfig --name your-cluster-name'
+                sh 'aws eks --region your-region update-kubeconfig --name EdurekaProject'
             }
         }
 
